@@ -28,8 +28,9 @@ type VehicleLocation struct {
 }
 
 func ReadVehicleLocations(db *sql.DB, routeTag string, startTime, endTime time.Time) ([]*VehicleLocation, error) {
+	timeFormat := "2006-01-02 15:04:05"
 	query := `SELECT dir_tag, vehicle_id, latitude, longitude, speed, creation_timestamp FROM vehicle_locations WHERE creation_timestamp BETWEEN ? AND ? AND route_tag = ? ORDER BY creation_timestamp`
-	rows, err := db.Query(query, startTime.Format(time.RFC3339), endTime.Format(time.RFC3339), routeTag)
+	rows, err := db.Query(query, startTime.Format(timeFormat), endTime.Format(timeFormat), routeTag)
 	if err != nil {
 		return nil, err
 	}
@@ -56,8 +57,7 @@ type timeValue struct {
 
 // Set is the method to set the flag value, part of the flag.Value interface.
 func (t *timeValue) Set(value string) error {
-	layout := "2006-01-02T15:04:05"
-	parsedTime, err := time.Parse(layout, value)
+	parsedTime, err := time.Parse(time.RFC3339, value)
 	if err != nil {
 		return err
 	}
@@ -67,7 +67,7 @@ func (t *timeValue) Set(value string) error {
 
 // String is the method to format the flag's value, part of the flag.Value interface.
 func (t *timeValue) String() string {
-	return t.value.Format("2006-01-02T15:04:05")
+	return t.value.Format(time.RFC3339)
 }
 
 func main() {
@@ -128,8 +128,8 @@ func main() {
 		wg.Wait()
 
 	case "export":
-		if startTime.value.IsZero() || endTime.value.IsZero() {
-			fmt.Println("start and end times must be specified")
+		if startTime.value.IsZero() || endTime.value.IsZero() || *routes == "" {
+			fmt.Println("start and end times and at least one route must be specified")
 			os.Exit(1)
 		}
 

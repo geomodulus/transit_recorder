@@ -22,3 +22,7 @@ go.work
 
 # Database
 db/*.db
+
+# Generated output
+records-*.json
+
