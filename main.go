@@ -19,12 +19,11 @@ import (
 )
 
 type VehicleLocation struct {
-	DirTag     string  `json:"DirTag"`
-	VehicleID  int     `json:"VehicleID"`
-	Lat        float64 `json:"Lat"`
-	Lon        float64 `json:"Lon"`
-	Speed      int     `json:"Speed"`
-	TimeOffset int     `json:"TimeOffset"`
+	DirTag     string    `json:"DirTag"`
+	VehicleID  int       `json:"VehicleID"`
+	Loc        []float64 `json:"Loc"`
+	Speed      int       `json:"Speed"`
+	TimeOffset int       `json:"TimeOffset"`
 }
 
 func ReadVehicleLocations(db *sql.DB, routeTag string, startTime, endTime time.Time) ([]*VehicleLocation, error) {
@@ -39,8 +38,9 @@ func ReadVehicleLocations(db *sql.DB, routeTag string, startTime, endTime time.T
 	records := []*VehicleLocation{}
 	for rows.Next() {
 		var record VehicleLocation
+		record.Loc = []float64{0, 0}
 		var creationTimestamp time.Time
-		err := rows.Scan(&record.DirTag, &record.VehicleID, &record.Lat, &record.Lon, &record.Speed, &creationTimestamp)
+		err := rows.Scan(&record.DirTag, &record.VehicleID, &record.Loc[1], &record.Loc[0], &record.Speed, &creationTimestamp)
 		if err != nil {
 			return nil, err
 		}
